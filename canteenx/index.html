@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CanteenX – Employee Meal Planner (Enhanced)</title>
+<style>
+  :root {
+    --accent: #2e8b57;
+    --accent-dark: #1e6b3f;
+    --bg-light: rgba(255,255,255,0.35);
+    --bg-dark: rgba(0,0,0,0.3);
+    --blur: 16px;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --radius: 12px;
+    --transition: 0.25s ease;
+  }
+  [data-theme="dark"] {
+    --text: #f9fafb;
+    --text-muted: #9ca3af;
+    --bg-light: rgba(30,41,59,0.4);
+    --bg-dark: rgba(17,24,39,0.65);
+    background: linear-gradient(160deg,#1e293b,#0f172a);
+    color: var(--text);
+  }
+  html,body { margin:0; height:100%; font-family: 'Inter',system-ui,-apple-system,"Segoe UI",sans-serif; background:linear-gradient(135deg,#d8f3dc,#b7e4c7); transition:var(--transition); }
+  body[data-theme="dark"] { background: linear-gradient(160deg,#1e293b,#0f172a); }
+  *{box-sizing:border-box;}
+  .app {min-height:100vh;display:flex;flex-direction:column;backdrop-filter:blur(var(--blur));}
+  header {
+    backdrop-filter: blur(var(--blur));
+    background: var(--bg-light);
+    border-bottom:1px solid rgba(255,255,255,0.25);
+    padding:14px 20px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .brand {display:flex;align-items:center;gap:12px;}
+  .logo {width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(46,139,87,0.25);}
+  .logo svg{width:20px;height:20px;color:white;}
+  .brand h1{margin:0;font-size:18px;font-weight:700;}
+  .brand p{margin:0;font-size:11px;color:var(--text-muted);}
+  .controls-top{display:flex;align-items:center;gap:10px;}
+  button,select,input[type="text"]{
+    border:none;
+    outline:none;
+    font:inherit;
+  }
+  .btn{padding:8px 14px;border-radius:var(--radius);cursor:pointer;font-weight:600;transition:var(--transition);}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:white;}
+  .btn.ghost{background:var(--bg-light);backdrop-filter:blur(var(--blur));color:var(--text);border:1px solid rgba(255,255,255,0.25);}
+  .btn:hover{transform:translateY(-2px);}
+  main{
+    display:flex;
+    gap:20px;
+    max-width:1100px;
+    margin:20px auto;
+    width:calc(100% - 40px);
+    flex-wrap:wrap;
+  }
+  .glass-card{
+    background:var(--bg-light);
+    backdrop-filter:blur(var(--blur));
+    border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,0.25);
+    padding:18px;
+    flex:1 1 320px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    animation:fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  .days-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+  .day-column{background:var(--bg-dark);backdrop-filter:blur(var(--blur));padding:12px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.15);}
+  .day-column h3{text-align:center;margin:0 0 8px;font-size:14px;}
+  .meal-list{display:flex;flex-direction:column;gap:8px;}
+  .meal-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.25);cursor:pointer;transition:var(--transition);}
+  .meal-item:hover{background:rgba(255,255,255,0.45);}
+  .meal-item.selected{background:rgba(46,139,87,0.3);border-color:var(--accent-dark);color:var(--accent-dark);}
+  .meal-item input{margin-right:8px;}
+  .muted{font-size:12px;color:var(--text-muted);}
+  .summary-item{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:8px 10px;font-size:13px;}
+  .search-bar{margin-bottom:10px;display:flex;gap:8px;}
+  .search-bar input{flex:1;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.35);color:var(--text);}
+  .switch{cursor:pointer;font-size:12px;color:var(--text-muted);}
+  @media(max-width:700px){.controls-top{flex-wrap:wrap;gap:6px;}header{flex-direction:column;gap:10px;align-items:flex-start;}}
+</style>
+</head>
+<body>
+<div class="app" id="app-root">
+  <header>
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" stroke="white" fill="none"><path d="M12 4v16M4 12h16"/></svg></div>
+      <div><h1>CanteenX</h1><p>Employee Meal Planner</p></div>
+    </div>
+    <div class="controls-top">
+      <button class="btn ghost" id="theme-toggle">🌙</button>
+      <button class="btn ghost" id="reset-week">🔄 Reset Week</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="glass-card">
+      <div class="search-bar">
+        <input id="search" type="text" placeholder="Search meals..." />
+        <button class="btn primary" id="add-meal-btn">Add Meal</button>
+      </div>
+      <div class="days-grid" id="days-grid"></div>
+    </section>
+
+    <aside class="glass-card">
+      <h3 style="margin-top:0;">Your selections</h3>
+      <div id="summary-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <div class="muted">Total selected</div>
+        <div id="total-count" style="font-weight:700">0</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn ghost" id="clear-btn">Clear</button>
+        <button class="btn primary" id="save-btn">Save</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function(){
+  const daysOrder=['Breakfast','Regular Lunch','Diet Lunch','Mini Meals','Regular Dinner','Diet Dinner','Supper','Special Item'];
+  const storageKey='canteenx-data-v2';
+  let state=loadState()||{meals:defaultMeals(),selected:[],theme:'light'};
+
+  // DOM
+  const grid=document.getElementById('days-grid');
+  const summary=document.getElementById('summary-list');
+  const totalCount=document.getElementById('total-count');
+  const search=document.getElementById('search');
+  const themeToggle=document.getElementById('theme-toggle');
+  const resetBtn=document.getElementById('reset-week');
+  const clearBtn=document.getElementById('clear-btn');
+  const saveBtn=document.getElementById('save-btn');
+  const addMealBtn=document.getElementById('add-meal-btn');
+  document.body.setAttribute('data-theme',state.theme);
+
+  // Util
+  function defaultMeals(){
+    return [
+      {id:'mon-1',name:'Margherita Pizza',day:'Monday'},
+      {id:'mon-2',name:'Caesar Salad',day:'Monday'},
+      {id:'tue-1',name:'Grilled Chicken Wrap',day:'Tuesday'},
+      {id:'tue-2',name:'Vegetable Biryani',day:'Tuesday'},
+      {id:'wed-1',name:'Beef Burger',day:'Wednesday'},
+      {id:'wed-2',name:'Greek Salad',day:'Wednesday'},
+      {id:'thu-1',name:'Fish & Chips',day:'Thursday'},
+      {id:'thu-2',name:'Paneer Tikka Masala',day:'Thursday'},
+      {id:'fri-1',name:'BBQ Chicken',day:'Friday'},
+      {id:'fri-2',name:'Chocolate Pudding',day:'Friday'}
+    ];
+  }
+  function saveState(){localStorage.setItem(storageKey,JSON.stringify(state));}
+  function loadState(){try{return JSON.parse(localStorage.getItem(storageKey));}catch(e){return null;}}
+
+  // Render
+  function render(){
+    grid.innerHTML='';
+    const filter=search.value.toLowerCase();
+    for(const day of daysOrder){
+      const col=document.createElement('div');
+      col.className='day-column';
+      const title=document.createElement('h3');title.textContent=day;
+      const list=document.createElement('div');list.className='meal-list';
+      const meals=state.meals.filter(m=>m.day===day&&m.name.toLowerCase().includes(filter));
+      meals.forEach(meal=>{
+        const item=document.createElement('div');
+        item.className='meal-item';
+        item.setAttribute('data-id',meal.id);
+        if(state.selected.includes(meal.id)) item.classList.add('selected');
+        item.innerHTML=`<span>${meal.name}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="checkbox" ${state.selected.includes(meal.id)?'checked':''}/>
+            <button class="btn ghost" style="padding:4px 6px;font-size:11px;">✏️</button>
+            <button class="btn ghost" style="padding:4px 6px;font-size:11px;">🗑️</button>
+          </div>`;
+        const [checkbox,editBtn,delBtn]=item.querySelectorAll('input,button');
+        checkbox.addEventListener('change',()=>toggleSelect(meal.id));
+        item.addEventListener('click',e=>{
+          if(['INPUT','BUTTON'].includes(e.target.tagName))return;
+          toggleSelect(meal.id);
+        });
+        editBtn.addEventListener('click',e=>{
+          e.stopPropagation();
+          const newName=prompt('Edit meal name:',meal.name);
+          if(newName){meal.name=newName;saveState();render();}
+        });
+        delBtn.addEventListener('click',e=>{
+          e.stopPropagation();
+          if(confirm('Delete this meal?')){
+            state.meals=state.meals.filter(m=>m.id!==meal.id);
+            state.selected=state.selected.filter(id=>id!==meal.id);
+            saveState();render();
+          }
+        });
+        list.appendChild(item);
+      });
+      col.appendChild(title);
+      list.children.length?col.appendChild(list):col.appendChild(document.createTextNode('No meals.'));
+      grid.appendChild(col);
+    }
+    renderSummary();
+    totalCount.textContent=state.selected.length;
+    saveState();
+  }
+
+  function renderSummary(){
+    summary.innerHTML='';
+    if(!state.selected.length){summary.innerHTML='<div class="muted">No meals selected.</div>';return;}
+    const grouped={};
+    state.selected.forEach(id=>{
+      const m=state.meals.find(x=>x.id===id);
+      if(m){(grouped[m.day]||(grouped[m.day]=[])).push(m);}
+    });
+    for(const day of daysOrder){
+      if(!grouped[day]) continue;
+      const header=document.createElement('div');
+      header.style.fontWeight='700';header.textContent=day;
+      summary.appendChild(header);
+      grouped[day].forEach(meal=>{
+        const item=document.createElement('div');
+        item.className='summary-item';
+        item.innerHTML=`<span>${meal.name}</span><button class="btn ghost" style="padding:4px 8px;font-size:12px;">Remove</button>`;
+        item.querySelector('button').addEventListener('click',()=>toggleSelect(meal.id));
+        summary.appendChild(item);
+      });
+    }
+  }
+
+  // Actions
+  function toggleSelect(id){
+    if(state.selected.includes(id)) state.selected=state.selected.filter(x=>x!==id);
+    else state.selected.push(id);
+    render();
+  }
+  clearBtn.onclick=()=>{if(confirm('Clear all selections?')){state.selected=[];render();}};
+  saveBtn.onclick=()=>{saveState();alert('Selections saved.');};
+  search.oninput=()=>render();
+  themeToggle.onclick=()=>{
+    state.theme=state.theme==='dark'?'light':'dark';
+    document.body.setAttribute('data-theme',state.theme);
+    themeToggle.textContent=state.theme==='dark'?'☀️':'🌙';
+    saveState();
+  };
+  resetBtn.onclick=()=>{
+    if(confirm('Reset to default meals and clear selections?')){
+      state.meals=defaultMeals();state.selected=[];render();
+    }
+  };
+  addMealBtn.onclick=()=>{
+    const name=prompt('Enter meal name:');
+    if(!name)return;
+    const day=prompt('Enter day (Meal Course):','Breakfast');
+    if(!daysOrder.includes(day)){alert('Invalid day');return;}
+    const id=day.toLowerCase().slice(0,3)+'-'+Math.random().toString(36).slice(2,6);
+    state.meals.push({id,name,day});
+    saveState();render();
+  };
+
+  // Init
+  render();
+})();
+</script>
+</body>
+</html>
