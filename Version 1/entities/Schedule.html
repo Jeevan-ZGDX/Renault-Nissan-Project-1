@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule Input with Image Upload</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(to bottom right, #0f172a, #1e3a8a, #0f172a);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 3rem;
+    }
+
+    .schema-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1.5rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      padding: 2rem 3rem;
+      color: #111827;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .meal-card {
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      text-align: center;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    .meal-card:hover { transform: scale(1.03); }
+    .meal-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+
+    .footer-badge {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid #22c55e;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.75rem 2rem;
+      color: #86efac;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin-top: 2rem;
+    }
+
+    .pulse {
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .property-label {
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+
+    .enum-select {
+      background-color: #eef2ff;
+      border: 1px solid #94a3b8;
+    }
+
+    #previewImage {
+      display: none;
+      margin-top: 10px;
+      width: 150px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold text-white mb-4" style="text-shadow: 0 3px 10px rgba(0,0,0,0.6);">
+      Schedule Input Form with Image Upload/Link
+    </h1>
+
+    <div class="schema-container text-start">
+      <form id="scheduleForm">
+        <div id="form-fields"></div>
+
+        <!-- Image input section -->
+        <div class="mb-3">
+          <label for="meal_image_url" class="form-label property-label">Meal Image URL (Optional)</label>
+          <input type="url" class="form-control" id="meal_image_url" name="meal_image_url" placeholder="Enter image link (https://...)">
+          <div class="form-text text-muted">If provided, this image will be displayed.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="meal_image_file" class="form-label property-label">Upload Meal Image (Optional)</label>
+          <input type="file" class="form-control" id="meal_image_file" accept="image/*">
+          <img id="previewImage" alt="Preview">
+          <div class="form-text text-muted">Uploading an image will override the URL if both are given.</div>
+        </div>
+
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-success btn-lg fw-bold">Save Schedule</button>
+        </div>
+      </form>
+
+      <hr class="my-4" />
+      <h5 class="fw-bold text-secondary mb-3">Saved Data (Local Storage)</h5>
+      <pre id="savedData" class="bg-light p-3 rounded" style="max-height:200px;overflow:auto;"></pre>
+
+      <div id="mealDisplay" class="mt-4 text-center"></div>
+    </div>
+
+    <div class="footer-badge">
+      <div class="rounded-circle bg-success pulse" style="width:10px;height:10px;"></div>
+      <span>Data stored locally in browser</span>
+    </div>
+  </div>
+
+  <script>
+    // === JSON Schema for Schedule ===
+    const schema = {
+      name: "Schedule",
+      type: "object",
+      properties: {
+        date: {
+          type: "string",
+          format: "date",
+          description: "Specific date for the meal"
+        },
+        meal_course: {
+          type: "string",
+          enum: [
+            "Breakfast",
+            "Regular Lunch",
+            "Diet Lunch",
+            "Mini Meals",
+            "Regular Dinner",
+            "Diet Dinner",
+            "Supper",
+            "Special Item"
+          ],
+          description: "Type of meal course"
+        },
+        meal_id: {
+          type: "string",
+          description: "Reference to the Meal"
+        },
+        meal_name: {
+          type: "string",
+          description: "Cached meal name for display"
+        }
+      },
+      required: ["date", "meal_course", "meal_id"]
+    };
+
+    const formFields = document.getElementById("form-fields");
+    const savedDataBox = document.getElementById("savedData");
+    const mealDisplay = document.getElementById("mealDisplay");
+    const fileInput = document.getElementById("meal_image_file");
+    const previewImg = document.getElementById("previewImage");
+
+    // === Render form inputs ===
+    Object.entries(schema.properties).forEach(([key, value]) => {
+      const fieldDiv = document.createElement("div");
+      fieldDiv.className = "mb-3";
+
+      let inputElement = "";
+
+      if (value.enum) {
+        inputElement = `
+          <select class="form-select enum-select" id="${key}" name="${key}" ${schema.required.includes(key) ? "required" : ""}>
+            <option value="">Select ${key}</option>
+            ${value.enum.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
+          </select>
+        `;
+      } else if (value.format === "date") {
+        inputElement = `
+          <input type="date" class="form-control" id="${key}" name="${key}" ${schema.required.includes(key) ? "required" : ""} />
+        `;
+      } else {
+        inputElement = `
+          <input type="text" class="form-control" id="${key}" name="${key}" placeholder="${value.description}" ${schema.required.includes(key) ? "required" : ""} />
+        `;
+      }
+
+      fieldDiv.innerHTML = `
+        <label for="${key}" class="form-label property-label">${key}</label>
+        ${inputElement}
+        <div class="form-text text-muted">${value.description}</div>
+      `;
+      formFields.appendChild(fieldDiv);
+    });
+
+    // === Show uploaded image preview ===
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          previewImg.src = reader.result;
+          previewImg.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // === Load saved data ===
+    function loadSavedData() {
+      const saved = localStorage.getItem("scheduleData");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        savedDataBox.textContent = JSON.stringify(parsed, null, 2);
+        Object.keys(parsed).forEach(key => {
+          const input = document.getElementById(key);
+          if (input) input.value = parsed[key];
+        });
+        showMealCard(parsed);
+      } else {
+        savedDataBox.textContent = "No saved schedule data.";
+        mealDisplay.innerHTML = "";
+      }
+    }
+
+    // === Show Meal Card with Image ===
+    function showMealCard(data) {
+      const mealName = data.meal_name || "Unknown Meal";
+      const imageUrl = data.meal_image || "https://upload.wikimedia.org/wikipedia/commons/1/15/Plate_with_food.jpg";
+      mealDisplay.innerHTML = `
+        <div class="meal-card mx-auto mt-3" style="max-width:400px;">
+          <img src="${imageUrl}" alt="${mealName}">
+          <div class="p-3">
+            <h4 class="fw-bold text-primary">${mealName}</h4>
+            <p class="mb-0 text-secondary">${data.meal_course} on ${data.date}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // === Save form ===
+    document.getElementById("scheduleForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      // Handle image (file or URL)
+      const file = fileInput.files[0];
+      const urlField = document.getElementById("meal_image_url").value.trim();
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          data.meal_image = reader.result; // Base64 image
+          saveData(data);
+        };
+        reader.readAsDataURL(file);
+      } else if (urlField) {
+        data.meal_image = urlField; // Use URL
+        saveData(data);
+      } else {
+        data.meal_image = ""; // No image
+        saveData(data);
+      }
+    });
+
+    function saveData(data) {
+      localStorage.setItem("scheduleData", JSON.stringify(data, null, 2));
+      savedDataBox.textContent = JSON.stringify(data, null, 2);
+      showMealCard(data);
+      alert("✅ Schedule saved! Meal card updated.");
+    }
+
+    loadSavedData();
+  </script>
+</body>
+</html>

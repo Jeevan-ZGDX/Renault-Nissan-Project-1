@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Today's Mess Menu</title>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(to bottom right, #0f172a, #1e3a8a, #0f172a);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .menu-wrapper {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      padding: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .course-card {
+      border-radius: 1.5rem;
+      border: 4px solid;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      min-height: 180px;
+      margin-bottom: 1.5rem;
+    }
+
+    .course-badge {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      color: white;
+      font-weight: 900;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .pulse {
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .footer-badge {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid #22c55e;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.75rem 2rem;
+      color: #86efac;
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-5 text-center">
+    <!-- Header -->
+    <div class="mb-4">
+      <h1 class="display-3 fw-black text-white mb-2" style="text-shadow: 0 4px 10px rgba(0,0,0,0.6)">
+        TODAY'S MESS MENU
+      </h1>
+      <p id="dateDisplay" class="fs-2 fw-bold text-warning mb-2"></p>
+      <p id="timeDisplay" class="fs-1 fw-bold text-success font-monospace"></p>
+    </div>
+
+    <!-- Menu Section -->
+    <div class="menu-wrapper">
+      <div id="menuContainer"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mb-5">
+      <div class="footer-badge">
+        <div class="rounded-circle bg-success pulse" style="width:10px;height:10px;"></div>
+        <span>LIVE • UPDATES AUTOMATICALLY</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MEAL_COURSES = [
+      "Breakfast",
+      "Regular Lunch",
+      "Diet Lunch",
+      "Mini Meals",
+      "Regular Dinner",
+      "Diet Dinner",
+      "Supper",
+      "Special Item"
+    ];
+
+    // Simulated API call — replace with actual API endpoint
+    async function fetchSchedules() {
+      // Example structure returned by API
+      return [
+        { date: new Date().toISOString().split('T')[0], meal_course: "Breakfast", meal_name: "Aloo Paratha & Curd" },
+        { date: new Date().toISOString().split('T')[0], meal_course: "Regular Lunch", meal_name: "Dal Tadka & Rice" },
+        { date: new Date().toISOString().split('T')[0], meal_course: "Diet Lunch", meal_name: "Boiled Veggies & Roti" },
+        { date: new Date().toISOString().split('T')[0], meal_course: "Regular Dinner", meal_name: "Paneer Butter Masala" },
+        { date: new Date().toISOString().split('T')[0], meal_course: "Supper", meal_name: "Milk & Cookies" },
+      ];
+    }
+
+    async function renderMenu() {
+      const schedules = await fetchSchedules();
+      const today = new Date().toISOString().split('T')[0];
+      const todaySchedules = schedules.filter(s => s.date === today);
+
+      const container = document.getElementById("menuContainer");
+      container.innerHTML = "";
+
+      MEAL_COURSES.forEach((course, idx) => {
+        const schedule = todaySchedules.find(s => s.meal_course === course);
+        const bgGradient = idx % 2 === 0
+          ? "linear-gradient(to right, #ede9fe, #e0e7ff)"
+          : "linear-gradient(to right, #dbeafe, #cffafe)";
+        const borderColor = schedule ? "#4ade80" : "#d1d5db";
+        const badgeColor = idx % 2 === 0 ? "#7c3aed" : "#2563eb";
+
+        const card = document.createElement("div");
+        card.className = "course-card";
+        card.style.background = bgGradient;
+        card.style.borderColor = borderColor;
+
+        card.innerHTML = `
+          <div style="flex-shrink:0;width:30%">
+            <div class="course-badge" style="background:${badgeColor}">
+              ${course}
+            </div>
+          </div>
+          <div class="flex-fill text-center">
+            ${
+              schedule
+                ? `
+              <p class="display-5 fw-bold text-dark mb-1">${schedule.meal_name}</p>
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <div class="rounded-circle bg-success pulse" style="width:12px;height:12px;"></div>
+                <span class="text-success fw-bold">Available Today</span>
+              </div>
+            `
+                : `<p class="fs-2 fw-bold text-secondary">Not Scheduled</p>`
+            }
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Update live time and date
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("timeDisplay").textContent = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      document.getElementById("dateDisplay").textContent = now.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+
+    // Auto-scroll effect
+    function startAutoScroll() {
+      let scrollInterval, pauseTimeout;
+
+      const startScroll = () => {
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const maxScroll = scrollHeight - clientHeight;
+
+        pauseTimeout = setTimeout(() => {
+          scrollInterval = setInterval(() => {
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (currentScroll >= maxScroll) {
+              clearInterval(scrollInterval);
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                setTimeout(startScroll, 2000);
+              }, 3000);
+            } else {
+              window.scrollBy({ top: 1, behavior: "auto" });
+            }
+          }, 50);
+        }, 3000);
+      };
+
+      startScroll();
+    }
+
+    // Initialize everything
+    updateTime();
+    renderMenu();
+    startAutoScroll();
+
+    setInterval(updateTime, 1000);     // Live clock
+    setInterval(renderMenu, 5000);     // Auto-refresh schedules
+  </script>
+</body>
+</html>
