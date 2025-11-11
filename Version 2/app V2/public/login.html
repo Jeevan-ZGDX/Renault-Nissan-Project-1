@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ["Inter", "sans-serif"],
+                            'Poppins': ['Poppins', 'sans-serif'],
+                        },
+                        colors: {
+                            "primary-blue": "#2C3E50",
+                            "primary-blue-light": "#3B82F6",
+                            "primary-blue-dark": "#1D4ED8",
+                            "success-green": "#27AE60",
+                            "success-green-light": "#34D399",
+                            "warning-orange": "#F39C12",
+                            "error-red": "#E74C3C",
+                            "error-red-light": "#FEE2E2",
+                            "background-white": "#FFFFFF",
+                            "background-gray-light": "#ECF0F1",
+                            "background-gray": "#F3F4F6",
+                            "text-dark": "#2C3E50",
+                            "text-medium": "#7F8C8D",
+                            "text-light": "#9CA3AF",
+                            "border-light": "#E5E7EB",
+                            "border-medium": "#D1D5DB",
+                            "interactive-orange": "#E67E22",
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+
+    <body class="bg-background-gray-light font-['Inter']">
+        <div
+            class="min-h-screen flex items-center justify-center bg-background-gray-light"
+            data-storm-selectable="true"
+            data-storm-selectable-label="Page Container"
+            data-storm-selectable-category="section"
+        >
+            <div
+                class="max-w-md w-full bg-background-white p-8 rounded-lg shadow-md border border-border-light"
+                data-storm-selectable="true"
+                data-storm-selectable-label="Auth Card"
+                data-storm-selectable-category="section"
+            >
+                <h2
+                    class="text-2xl font-semibold text-text-dark text-center font-['Poppins']"
+                    data-storm-selectable="true"
+                    data-storm-selectable-label="Login Heading"
+                    data-storm-selectable-category="header"
+                >
+                    Login
+                </h2>
+                <form
+                    id="loginForm"
+                    class="mt-4"
+                    data-storm-selectable="true"
+                    data-storm-selectable-label="Login Form"
+                    data-storm-selectable-category="form"
+                >
+                    <div
+                        class="mb-4"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Email Field Group"
+                        data-storm-selectable-category="section"
+                    >
+                        <label
+                            for="email"
+                            class="block text-sm font-medium text-text-medium"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Email Label"
+                            data-storm-selectable-category="text"
+                            >Email</label
+                        >
+                        <input
+                            type="email"
+                            name="email"
+                            class="mt-1 block w-full px-3 py-2 border border-border-medium rounded-md shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue sm:text-sm"
+                            required
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Email Input"
+                            data-storm-selectable-category="form"
+                        />
+                    </div>
+                    <div
+                        class="mb-4"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Password Field Group"
+                        data-storm-selectable-category="section"
+                    >
+                        <label
+                            for="password"
+                            class="block text-sm font-medium text-text-medium"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Password Label"
+                            data-storm-selectable-category="text"
+                            >Password</label
+                        >
+                        <input
+                            type="password"
+                            name="password"
+                            class="mt-1 block w-full px-3 py-2 border border-border-medium rounded-md shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue sm:text-sm"
+                            required
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Password Input"
+                            data-storm-selectable-category="form"
+                        />
+                    </div>
+                    <!-- Forgot Password Link -->
+                    <div
+                        class="mb-4 text-right"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Forgot Password Row"
+                        data-storm-selectable-category="section"
+                    >
+                        <a
+                            href="#"
+                            id="forgot-password-link"
+                            class="text-sm text-interactive-orange hover:text-primary-blue-dark"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Forgot Password Link"
+                            data-storm-selectable-category="button"
+                            >Forgot password?</a
+                        >
+                    </div>
+                    <button
+                        type="submit"
+                        id="submit-button"
+                        class="w-full bg-primary-blue hover:bg-primary-blue-dark text-background-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-opacity-50 font-['Poppins']"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Login Button"
+                        data-storm-selectable-category="button"
+                    >
+                        Login
+                    </button>
+                    <div
+                        id="spinner"
+                        class="hidden mt-4"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Loading Spinner Container"
+                        data-storm-selectable-category="section"
+                    >
+                        <div
+                            class="mx-auto h-[30px] w-[30px] rounded-full border-4 border-black/10 border-t-primary-blue animate-spin"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Loading Spinner"
+                            data-storm-selectable-category="icon"
+                        ></div>
+                    </div>
+                </form>
+                <div
+                    class="mt-4 text-center"
+                    data-storm-selectable="true"
+                    data-storm-selectable-label="Signup Prompt Section"
+                    data-storm-selectable-category="section"
+                >
+                    <p
+                        class="text-sm text-text-medium"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Signup Prompt Text"
+                        data-storm-selectable-category="text"
+                    >
+                        Don't have an account?
+                        <a
+                            href="/signup.html"
+                            class="text-interactive-orange hover:text-primary-blue-dark"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Sign Up Link"
+                            data-storm-selectable-category="navigation"
+                            >Sign up</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Modal (Existing) -->
+        <div
+            id="error-modal"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+            data-storm-selectable="true"
+            data-storm-selectable-label="Error Modal Overlay"
+            data-storm-selectable-category="modal"
+        >
+            <div
+                class="bg-background-white p-6 rounded-lg shadow-xl max-w-sm w-full"
+                data-storm-selectable="true"
+                data-storm-selectable-label="Error Modal Card"
+                data-storm-selectable-category="section"
+            >
+                <div
+                    class="flex items-start"
+                    data-storm-selectable="true"
+                    data-storm-selectable-label="Error Modal Content"
+                    data-storm-selectable-category="section"
+                >
+                    <div
+                        class="flex-shrink-0"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Error Icon Wrapper"
+                        data-storm-selectable-category="section"
+                    >
+                        <svg
+                            class="h-6 w-6 text-error-red"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Error Icon"
+                            data-storm-selectable-category="icon"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
+                    <div
+                        class="ml-4"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Error Text and Actions"
+                        data-storm-selectable-category="section"
+                    >
+                        <h3
+                            class="text-lg font-medium text-text-dark font-['Poppins']"
+                            id="modal-title"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Error Title"
+                            data-storm-selectable-category="header"
+                        >
+                            Login Failed
+                        </h3>
+                        <div
+                            class="mt-2"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Error Message Container"
+                            data-storm-selectable-category="section"
+                        >
+                            <p
+                                class="text-sm text-text-medium"
+                                id="modal-message"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Error Message Text"
+                                data-storm-selectable-category="text"
+                            >
+                                Invalid credentials. Please try again.
+                            </p>
+                        </div>
+                        <div
+                            class="mt-4"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Error Modal Actions"
+                            data-storm-selectable-category="section"
+                        >
+                            <button
+                                type="button"
+                                onclick="document.getElementById('error-modal').classList.add('hidden')"
+                                class="inline-flex justify-center px-4 py-2 text-sm font-medium text-primary-blue bg-background-white border border-border-medium rounded-md hover:bg-background-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue font-['Poppins']"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Try Again Button"
+                                data-storm-selectable-category="button"
+                            >
+                                Try again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New: Forgot Password Modal -->
+        <div
+            id="forgot-password-modal"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden"
+            data-storm-selectable="true"
+            data-storm-selectable-label="Forgot Password Modal Overlay"
+            data-storm-selectable-category="modal"
+        >
+            <div
+                class="bg-background-white p-6 rounded-lg shadow-xl max-w-sm w-full"
+                data-storm-selectable="true"
+                data-storm-selectable-label="Forgot Password Modal Card"
+                data-storm-selectable-category="section"
+            >
+                <div
+                    class="flex items-start"
+                    data-storm-selectable="true"
+                    data-storm-selectable-label="Forgot Password Layout"
+                    data-storm-selectable-category="section"
+                >
+                    <div
+                        class="flex-shrink-0"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Forgot Password Icon Wrapper"
+                        data-storm-selectable-category="section"
+                    >
+                        <!-- Icon for forgot password, e.g., a question mark or key -->
+                        <svg
+                            class="h-6 w-6 text-interactive-orange"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Forgot Password Icon"
+                            data-storm-selectable-category="icon"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 7a2 2 0 012 2v5a2 2 0 01-2 2h-2a2 2 0 01-2-2V9a2 2 0 012-2h2zm0 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0V5a2 2 0 012-2h2m-2 0H9m7 0a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V9a2 2 0 012-2h2z"
+                            />
+                        </svg>
+                    </div>
+                    <div
+                        class="ml-4 flex-grow"
+                        data-storm-selectable="true"
+                        data-storm-selectable-label="Forgot Password Content"
+                        data-storm-selectable-category="section"
+                    >
+                        <h3
+                            class="text-lg font-medium text-text-dark font-['Poppins']"
+                            id="forgot-password-modal-title"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Forgot Password Title"
+                            data-storm-selectable-category="header"
+                        >
+                            Forgot Password?
+                        </h3>
+                        <div
+                            class="mt-2"
+                            id="forgot-password-form-container"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Forgot Password Form Container"
+                            data-storm-selectable-category="section"
+                        >
+                            <p
+                                class="text-sm text-text-medium mb-4"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Forgot Password Instructions"
+                                data-storm-selectable-category="text"
+                            >
+                                Enter your email address and we'll send you a
+                                link to reset your password.
+                            </p>
+                            <form
+                                id="forgotPasswordForm"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Forgot Password Form"
+                                data-storm-selectable-category="form"
+                            >
+                                <div
+                                    class="mb-4"
+                                    data-storm-selectable="true"
+                                    data-storm-selectable-label="Forgot Password Email Group"
+                                    data-storm-selectable-category="section"
+                                >
+                                    <label
+                                        for="forgot-password-email"
+                                        class="block text-sm font-medium text-text-medium"
+                                        data-storm-selectable="true"
+                                        data-storm-selectable-label="Forgot Email Label"
+                                        data-storm-selectable-category="text"
+                                        >Email</label
+                                    >
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="forgot-password-email"
+                                        class="mt-1 block w-full px-3 py-2 border border-border-medium rounded-md shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue sm:text-sm"
+                                        required
+                                        data-storm-selectable="true"
+                                        data-storm-selectable-label="Forgot Email Input"
+                                        data-storm-selectable-category="form"
+                                    />
+                                </div>
+                                <div
+                                    class="flex justify-end space-x-3"
+                                    data-storm-selectable="true"
+                                    data-storm-selectable-label="Forgot Password Buttons Row"
+                                    data-storm-selectable-category="section"
+                                >
+                                    <button
+                                        type="button"
+                                        onclick="hideForgotPasswordModal()"
+                                        class="inline-flex justify-center px-4 py-2 text-sm font-medium text-text-medium bg-background-white border border-border-medium rounded-md hover:bg-background-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue font-['Poppins']"
+                                        data-storm-selectable="true"
+                                        data-storm-selectable-label="Cancel Button"
+                                        data-storm-selectable-category="button"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        id="forgot-password-submit-button"
+                                        class="inline-flex justify-center px-4 py-2 text-sm font-medium text-background-white bg-primary-blue border border-transparent rounded-md hover:bg-primary-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue font-['Poppins']"
+                                        data-storm-selectable="true"
+                                        data-storm-selectable-label="Send Reset Link Button"
+                                        data-storm-selectable-category="button"
+                                    >
+                                        Send Reset Link
+                                    </button>
+                                </div>
+                                <div
+                                    id="forgot-password-spinner"
+                                    class="hidden mt-4"
+                                    data-storm-selectable="true"
+                                    data-storm-selectable-label="Forgot Password Spinner Container"
+                                    data-storm-selectable-category="section"
+                                >
+                                    <div
+                                        class="mx-auto h-[30px] w-[30px] rounded-full border-4 border-black/10 border-t-primary-blue animate-spin"
+                                        data-storm-selectable="true"
+                                        data-storm-selectable-label="Forgot Password Spinner"
+                                        data-storm-selectable-category="icon"
+                                    ></div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Message container for after submission -->
+                        <div
+                            class="mt-2 hidden"
+                            id="forgot-password-message-container"
+                            data-storm-selectable="true"
+                            data-storm-selectable-label="Forgot Password Message Container"
+                            data-storm-selectable-category="section"
+                        >
+                            <p
+                                class="text-sm text-text-medium"
+                                id="forgot-password-message"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Forgot Password Message Text"
+                                data-storm-selectable-category="text"
+                            ></p>
+                            <div
+                                class="mt-4 text-right"
+                                data-storm-selectable="true"
+                                data-storm-selectable-label="Forgot Password Close Row"
+                                data-storm-selectable-category="section"
+                            >
+                                <button
+                                    type="button"
+                                    onclick="hideForgotPasswordModal()"
+                                    class="inline-flex justify-center px-4 py-2 text-sm font-medium text-primary-blue bg-background-white border border-border-medium rounded-md hover:bg-background-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue font-['Poppins']"
+                                    data-storm-selectable="true"
+                                    data-storm-selectable-label="Close Button"
+                                    data-storm-selectable-category="button"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // --- Existing Login Form Script ---
+            function showErrorModal(message) {
+                const modal = document.getElementById("error-modal");
+                const modalMessage = document.getElementById("modal-message");
+                modalMessage.textContent = message;
+                modal.classList.remove("hidden");
+            }
+
+            document
+                .getElementById("loginForm")
+                .addEventListener("submit", async function (event) {
+                    event.preventDefault();
+                    const form = event.target;
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    document
+                        .getElementById("spinner")
+                        .classList.remove("hidden");
+                    document.getElementById("submit-button").disabled = true;
+
+                    try {
+                        const response = await fetch("/api/login", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(data),
+                        });
+                        const result = await response.json(); // Always parse JSON
+                        if (response.ok) {
+                            document.cookie = `storm_app_token=${result.token}; path=/; max-age=3600; Secure; SameSite=Lax`; // max-age for 1 hour, SameSite=Lax is a good default
+                            window.location.href = "/index.html";
+                        } else {
+                            // If response not ok, result.message will contain the error from your backend
+                            showErrorModal(
+                                result.message ||
+                                    response.statusText ||
+                                    "Invalid credentials",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        showErrorModal(
+                            "An error occurred during login. Please try again.",
+                        );
+                    } finally {
+                        document
+                            .getElementById("spinner")
+                            .classList.add("hidden");
+                        document.getElementById("submit-button").disabled =
+                            false;
+                    }
+                });
+
+            // --- New Forgot Password Script ---
+            const forgotPasswordLink = document.getElementById(
+                "forgot-password-link",
+            );
+            const forgotPasswordModal = document.getElementById(
+                "forgot-password-modal",
+            );
+            const forgotPasswordForm =
+                document.getElementById("forgotPasswordForm");
+            const forgotPasswordEmailInput = document.getElementById(
+                "forgot-password-email",
+            );
+            const forgotPasswordSubmitButton = document.getElementById(
+                "forgot-password-submit-button",
+            );
+            const forgotPasswordSpinner = document.getElementById(
+                "forgot-password-spinner",
+            );
+            const forgotPasswordFormContainer = document.getElementById(
+                "forgot-password-form-container",
+            );
+            const forgotPasswordMessageContainer = document.getElementById(
+                "forgot-password-message-container",
+            );
+            const forgotPasswordMessage = document.getElementById(
+                "forgot-password-message",
+            );
+
+            function showForgotPasswordModal() {
+                // Reset the modal to its initial state
+                forgotPasswordForm.reset(); // Clear any previous email
+                forgotPasswordFormContainer.classList.remove("hidden");
+                forgotPasswordMessageContainer.classList.add("hidden");
+                forgotPasswordSpinner.classList.add("hidden");
+                forgotPasswordSubmitButton.disabled = false;
+                forgotPasswordModal.classList.remove("hidden");
+            }
+
+            function hideForgotPasswordModal() {
+                forgotPasswordModal.classList.add("hidden");
+            }
+
+            forgotPasswordLink.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default link behavior
+                showForgotPasswordModal();
+            });
+
+            forgotPasswordForm.addEventListener(
+                "submit",
+                async function (event) {
+                    event.preventDefault();
+
+                    const email = forgotPasswordEmailInput.value;
+                    const from_name = "Menu Management and Display Web App"; // You can customize this or get it from a config
+
+                    forgotPasswordSpinner.classList.remove("hidden");
+                    forgotPasswordSubmitButton.disabled = true;
+
+                    try {
+                        const response = await fetch("/api/forgot-password", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                email,
+                                from_name,
+                                callback_host: window.location.origin,
+                            }),
+                        });
+
+                        // The backend `forgotPassword` endpoint is designed to *always* return 200 OK
+                        // and a generic message for security reasons (to prevent email enumeration).
+                        const result = await response.json();
+
+                        // Hide the form and show the success message
+                        forgotPasswordFormContainer.classList.add("hidden");
+                        forgotPasswordMessageContainer.classList.remove(
+                            "hidden",
+                        );
+                        forgotPasswordMessage.textContent = result.message;
+                    } catch (error) {
+                        console.error("Forgot Password Error:", error);
+                        // In case of a network error, still show a user-friendly message
+                        forgotPasswordFormContainer.classList.add("hidden");
+                        forgotPasswordMessageContainer.classList.remove(
+                            "hidden",
+                        );
+                        forgotPasswordMessage.textContent =
+                            "An error occurred during the request. Please try again later.";
+                    } finally {
+                        forgotPasswordSpinner.classList.add("hidden");
+                        // No need to re-enable button if form is hidden
+                    }
+                },
+            );
+        </script>
+    </body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Select your daily menu from available meal courses including breakfast, lunch, dinner, and special items."/>
+  <title>Today&#39;s Menu Selection - Daily Menu</title>
+  <link rel="icon" href="/favicon.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="/manifest.json"/>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;family=Poppins:wght@400;500;600;700&amp;family=Roboto:wght@500;700&amp;display=swap" rel="stylesheet"/>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <!-- Moment.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <!-- Auth Helper -->
+  <script src="/auth-helper.js"></script>
+
+  <!-- Auth Check -->
+  <script src="/auth-check.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #2C3E50;
+      background-color: #FFFFFF;
+      overflow: hidden;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Poppins', sans-serif;
+      color: #2C3E50;
+    }
+    .menu-card {
+      transition: all 0.2s ease-in-out;
+    }
+    .menu-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .menu-item {
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    .menu-item:hover {
+      background-color: #ECF0F1;
+    }
+    .menu-item.selected {
+      background-color: #27AE60;
+      color: white;
+      transform: scale(1.03);
+    }
+    .menu-item.selected:hover {
+      background-color: #229954;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .spinner {
+      border: 3px solid #ECF0F1;
+      border-top: 3px solid #E67E22;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #ECF0F1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #7F8C8D;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2C3E50;
+    }
+    .content-container {
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-[#2C3E50] text-white fixed top-0 left-0 right-0 z-50 shadow-md" data-storm-selectable="true" data-storm-selectable-label="Header Navigation" data-storm-selectable-category="header">
+    <nav class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <!-- Brand/Logo -->
+        <div class="flex items-center">
+          <a href="/index.html" class="text-2xl font-semibold font-[&#39;Poppins&#39;] tracking-wide hover:text-[#E67E22] transition-colors duration-200">
+            Daily Menu
+          </a>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center space-x-6">
+          <!-- Authenticated User Navigation -->
+          <div id="authNav" class="hidden items-center space-x-6">
+            <a href="/index.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded">
+              Menu Selection
+            </a>
+            <a href="/admin_dashboard.html" id="adminLink" class="hidden font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded">
+              Admin Dashboard
+            </a>
+            <a href="/tv_display.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded">
+              TV Display
+            </a>
+            <div class="flex items-center space-x-3 ml-4 pl-4 border-l border-white border-opacity-30">
+              <span id="userRole" class="bg-[#27AE60] text-white text-sm font-[&#39;Poppins&#39;] font-medium px-3 py-1 rounded-full">User</span>
+              <button id="logoutBtn" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium text-base px-4 py-2 rounded transition-all duration-200 hover:scale-105">
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Unauthenticated Navigation -->
+          <div id="guestNav" class="flex items-center space-x-4">
+            <a href="/login.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded">
+              Login
+            </a>
+            <a href="/signup.html" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium text-base px-4 py-2 rounded transition-all duration-200 hover:scale-105">
+              Sign Up
+            </a>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button id="mobileMenuBtn" class="md:hidden text-white hover:text-[#E67E22] transition-colors duration-200 p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation Menu -->
+      <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 border-t border-white border-opacity-20 pt-4">
+        <!-- Authenticated Mobile Navigation -->
+        <div id="authNavMobile" class="hidden flex-col space-y-3">
+          <a href="/index.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded block">
+            Menu Selection
+          </a>
+          <a href="/admin_dashboard.html" id="adminLinkMobile" class="hidden font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded block">
+            Admin Dashboard
+          </a>
+          <a href="/tv_display.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded block">
+            TV Display
+          </a>
+          <div class="flex flex-col space-y-3 pt-3 border-t border-white border-opacity-20">
+            <span id="userRoleMobile" class="bg-[#27AE60] text-white text-sm font-[&#39;Poppins&#39;] font-medium px-3 py-1 rounded-full self-start">User</span>
+            <button id="logoutBtnMobile" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium text-base px-4 py-2 rounded transition-all duration-200 w-full">
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Unauthenticated Mobile Navigation -->
+        <div id="guestNavMobile" class="flex flex-col space-y-3">
+          <a href="/login.html" class="font-[&#39;Poppins&#39;] font-medium text-base hover:text-[#E67E22] transition-colors duration-200 py-2 px-3 rounded block">
+            Login
+          </a>
+          <a href="/signup.html" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium text-base px-4 py-2 rounded transition-all duration-200 text-center">
+            Sign Up
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-20">
+    <div class="content-container">
+      <div class="container mx-auto px-4 py-6">
+        <!-- Page Header -->
+        <div class="mb-6 fade-in" data-storm-selectable="true" data-storm-selectable-label="Page Header" data-storm-selectable-category="section">
+          <h1 class="text-4xl font-bold font-[&#39;Poppins&#39;] text-[#2C3E50] mb-2">Today&#39;s Menu Selection</h1>
+          <p class="text-lg text-[#7F8C8D] font-[&#39;Inter&#39;]" id="currentDate"></p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="flex flex-col items-center justify-center py-20">
+          <div class="spinner mb-4"></div>
+          <p class="text-[#7F8C8D] font-[&#39;Inter&#39;]">Loading menu...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <svg class="w-12 h-12 text-red-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold font-[&#39;Poppins&#39;] text-red-700 mb-2">Couldn&#39;t Load Menu</h3>
+          <p class="text-red-600 font-[&#39;Inter&#39;]">Please try again later or contact support if the problem persists.</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden bg-[#ECF0F1] rounded-lg p-8 text-center">
+          <svg class="w-16 h-16 text-[#7F8C8D] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          <h3 class="text-2xl font-semibold font-[&#39;Poppins&#39;] text-[#2C3E50] mb-2">No Menu Items Available</h3>
+          <p class="text-[#7F8C8D] font-[&#39;Inter&#39;]">The menu is currently empty. Please check back later or contact an administrator.</p>
+        </div>
+
+        <!-- Menu Grid -->
+        <div id="menuGrid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" data-storm-selectable="true" data-storm-selectable-label="Menu Grid" data-storm-selectable-category="section">
+          <!-- Menu cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div id="actionButtons" class="hidden mt-6 flex justify-between items-center fade-in" data-storm-selectable="true" data-storm-selectable-label="Action Buttons" data-storm-selectable-category="section">
+          <button id="saveSelectionsBtn" class="bg-[#27AE60] hover:bg-[#229954] text-white font-[&#39;Poppins&#39;] font-medium text-base px-6 py-3 rounded transition-all duration-200 hover:scale-105 shadow-md">
+            Save Selections
+          </button>
+          <a href="/tv_display.html" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium text-base px-6 py-3 rounded transition-all duration-200 hover:scale-105 shadow-md inline-block">
+            View TV Display
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full relative fade-in">
+      <div class="text-center">
+        <svg class="w-16 h-16 text-[#27AE60] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="text-xl font-[&#39;Poppins&#39;] font-semibold text-[#2C3E50] mb-2">Selections Saved!</h3>
+        <p class="text-[#7F8C8D] font-[&#39;Inter&#39;] mb-6">Your menu selections have been saved successfully.</p>
+        <button id="closeSuccessModal" class="bg-[#E67E22] hover:bg-[#D35400] text-white font-[&#39;Poppins&#39;] font-medium py-2 px-6 rounded transition-colors duration-200">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import ClientAPI from '/client.js';
+
+    const api = new ClientAPI();
+    const mealCourses = [
+      "Breakfast",
+      "Regular Lunch",
+      "Diet Lunch",
+      "Mini Meals",
+      "Regular Dinner",
+      "Diet Dinner",
+      "Supper",
+      "Special Item"
+    ];
+
+    let menuItemsByCategory = {};
+    let userSelections = {};
+    let currentDate = moment().format('YYYY-MM-DD');
+
+    $(document).ready(function() {
+      // Display current date
+      $('#currentDate').text(moment().format('dddd, MMMM D, YYYY'));
+
+      // Mobile menu toggle
+      $('#mobileMenuBtn').on('click', function() {
+        $('#mobileMenu').toggleClass('hidden');
+      });
+
+      // Logout handlers
+      $('#logoutBtn, #logoutBtnMobile').on('click', function() {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+      });
+
+      // Check authentication and load user info
+      checkAuthAndLoadUser();
+
+      // Load menu and user selections
+      loadMenuAndSelections();
+
+      // Save selections button
+      $('#saveSelectionsBtn').on('click', saveSelections);
+
+      // Close success modal
+      $('#closeSuccessModal').on('click', function() {
+        $('#successModal').addClass('hidden');
+      });
+
+      // Close modal on overlay click
+      $('#successModal').on('click', function(event) {
+        if ($(event.target).is('#successModal')) {
+          $('#successModal').addClass('hidden');
+        }
+      });
+    });
+
+    async function checkAuthAndLoadUser() {
+      try {
+        const user = await api.getCurrentAuthUser();
+        
+        if (user && user.role) {
+          // Show authenticated navigation
+          $('#authNav, #authNavMobile').removeClass('hidden').addClass('flex');
+          $('#guestNav, #guestNavMobile').addClass('hidden');
+
+          // Set user role badge
+          const roleText = user.role === 'admin' ? 'Admin' : 'User';
+          $('#userRole, #userRoleMobile').text(roleText);
+
+          // Show admin link if user is admin
+          if (user.role === 'admin') {
+            $('#adminLink, #adminLinkMobile').removeClass('hidden');
+          }
+        } else {
+          // Show guest navigation
+          $('#authNav, #authNavMobile').addClass('hidden');
+          $('#guestNav, #guestNavMobile').removeClass('hidden').addClass('flex');
+        }
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        $('#authNav, #authNavMobile').addClass('hidden');
+        $('#guestNav, #guestNavMobile').removeClass('hidden').addClass('flex');
+      }
+    }
+
+    async function loadMenuAndSelections() {
+      try {
+        // Load all menu items
+        const response = await api.getMenuItems();
+        
+        if (!response || !response.menu_items || response.menu_items.length === 0) {
+          showEmptyState();
+          return;
+        }
+
+        // Organize menu items by category
+        menuItemsByCategory = {};
+        mealCourses.forEach(course => {
+          menuItemsByCategory[course] = [];
+        });
+
+        response.menu_items.forEach(item => {
+          if (item.categories && Array.isArray(item.categories)) {
+            item.categories.forEach(category => {
+              if (menuItemsByCategory[category]) {
+                menuItemsByCategory[category].push(item);
+              }
+            });
+          }
+        });
+
+        // Load user selections for today
+        try {
+          const selectionsResponse = await api.getUserSelections(currentDate);
+          if (selectionsResponse && selectionsResponse.selections) {
+            userSelections = selectionsResponse.selections;
+          }
+        } catch (error) {
+          // No selections yet for today, that's okay
+          console.log('No existing selections for today');
+          userSelections = {};
+        }
+
+        // Render the menu
+        renderMenu();
+        
+      } catch (error) {
+        console.error('Error loading menu:', error);
+        showErrorState();
+      }
+    }
+
+    function renderMenu() {
+      const $menuGrid = $('#menuGrid');
+      $menuGrid.empty();
+
+      let hasAnyItems = false;
+
+      mealCourses.forEach(course => {
+        const items = menuItemsByCategory[course] || [];
+        
+        if (items.length > 0) {
+          hasAnyItems = true;
+          
+          const $card = $('<div>')
+            .addClass('menu-card bg-white rounded-lg shadow-md p-4 fade-in')
+            .attr('data-storm-selectable', 'true')
+            .attr('data-storm-selectable-label', `${course} Card`)
+            .attr('data-storm-selectable-category', 'section');
+
+          const $header = $('<h2>')
+            .addClass('text-xl font-semibold font-["Poppins"] text-[#2C3E50] mb-3 pb-2 border-b-2 border-[#E67E22]')
+            .text(course);
+
+          $card.append($header);
+
+          const $itemsList = $('<div>').addClass('space-y-2');
+
+          items.forEach(item => {
+            const isSelected = userSelections[course] === item.menu_item_id;
+            
+            const $item = $('<div>')
+              .addClass('menu-item p-3 rounded border border-[#ECF0F1]')
+              .attr('data-course', course)
+              .attr('data-item-id', item.menu_item_id)
+              .toggleClass('selected', isSelected);
+
+            const $itemName = $('<div>')
+              .addClass('font-medium font-["Poppins"]')
+              .text(item.name || 'Unnamed Item');
+
+            const $itemDesc = $('<div>')
+              .addClass('text-sm text-[#7F8C8D] mt-1 font-["Inter"]')
+              .html(item.description || '');
+
+            $item.append($itemName, $itemDesc);
+            $item.on('click', function() {
+              selectMenuItem(course, item.menu_item_id);
+            });
+
+            $itemsList.append($item);
+          });
+
+          $card.append($itemsList);
+          $menuGrid.append($card);
+        }
+      });
+
+      if (hasAnyItems) {
+        $('#loadingState').addClass('hidden');
+        $('#menuGrid, #actionButtons').removeClass('hidden');
+      } else {
+        showEmptyState();
+      }
+    }
+
+    function selectMenuItem(course, itemId) {
+      // Toggle selection
+      if (userSelections[course] === itemId) {
+        delete userSelections[course];
+      } else {
+        userSelections[course] = itemId;
+      }
+
+      // Update UI
+      $(`.menu-item[data-course="${course}"]`).removeClass('selected');
+      if (userSelections[course]) {
+        $(`.menu-item[data-course="${course}"][data-item-id="${userSelections[course]}"]`).addClass('selected');
+      }
+    }
+
+    async function saveSelections() {
+      try {
+        const $btn = $('#saveSelectionsBtn');
+        const originalText = $btn.text();
+        $btn.prop('disabled', true).text('Saving...');
+
+        await api.updateUserSelections({
+          date: currentDate,
+          selections: userSelections
+        });
+
+        $btn.prop('disabled', false).text(originalText);
+        $('#successModal').removeClass('hidden');
+
+      } catch (error) {
+        console.error('Error saving selections:', error);
+        const $btn = $('#saveSelectionsBtn');
+        $btn.prop('disabled', false).text('Save Selections');
+        alert('Failed to save selections. Please try again.');
+      }
+    }
+
+    function showEmptyState() {
+      $('#loadingState').addClass('hidden');
+      $('#emptyState').removeClass('hidden');
+      $('#menuGrid, #actionButtons').addClass('hidden');
+    }
+
+    function showErrorState() {
+      $('#loadingState').addClass('hidden');
+      $('#errorState').removeClass('hidden');
+      $('#menuGrid, #actionButtons').addClass('hidden');
+    }
+  </script>
+
+
+</body></html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Daily menu display optimized for television screens showing today&#39;s meal selections"/>
+  <title>Daily Menu Display - TV View</title>
+  <link rel="icon" href="/favicon.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="/manifest.json"/>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&amp;display=swap" rel="stylesheet"/>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <!-- Moment.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #1A252F;
+      color: #FFFFFF;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    h1, h2, h3 {
+      font-family: 'Roboto', sans-serif;
+      color: #FFFFFF;
+    }
+
+    .tv-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    .tv-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      flex-shrink: 0;
+    }
+
+    .tv-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      overflow: hidden;
+      align-content: start;
+    }
+
+    .meal-course-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meal-course-card:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(230, 126, 34, 0.5);
+      transform: scale(1.02);
+    }
+
+    .course-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #E67E22;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .menu-item-name {
+      font-size: 1.25rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #FFFFFF;
+    }
+
+    .no-selection {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+    }
+
+    .date-display {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #E67E22;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-title {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .tv-container {
+        padding: 1rem;
+      }
+      
+      .app-title {
+        font-size: 2rem;
+      }
+      
+      .date-display {
+        font-size: 1.5rem;
+      }
+      
+      .course-title {
+        font-size: 1.25rem;
+      }
+      
+      .menu-item-name {
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1920px) {
+      .app-title {
+        font-size: 4rem;
+      }
+      
+      .date-display {
+        font-size: 2.5rem;
+      }
+      
+      .course-title {
+        font-size: 2rem;
+      }
+      
+      .menu-item-name {
+        font-size: 1.5rem;
+      }
+      
+      .meal-course-card {
+        padding: 2rem;
+      }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #E67E22;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background-color: rgba(231, 76, 60, 0.2);
+      border: 2px solid #E74C3C;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="tv-container">
+    <div class="tv-header" data-storm-selectable="true" data-storm-selectable-label="Header Section" data-storm-selectable-category="header">
+      <h1 class="app-title" data-storm-selectable="true" data-storm-selectable-label="App Title" data-storm-selectable-category="text">Daily Menu</h1>
+      <div class="date-display" id="currentDate" data-storm-selectable="true" data-storm-selectable-label="Current Date" data-storm-selectable-category="text">Loading...</div>
+    </div>
+
+    <div id="loadingState" class="flex items-center justify-center flex-1">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto mb-4"></div>
+        <p class="text-xl" data-storm-selectable="true" data-storm-selectable-label="Loading Message" data-storm-selectable-category="text">Loading today&#39;s menu...</p>
+      </div>
+    </div>
+
+    <div id="errorState" class="hidden flex items-center justify-center flex-1">
+      <div class="error-message max-w-2xl" data-storm-selectable="true" data-storm-selectable-label="Error Message" data-storm-selectable-category="section">
+        <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h2 class="text-2xl font-bold mb-2">Unable to Load Menu</h2>
+        <p class="text-lg">Couldn&#39;t load today&#39;s menu. Please try again later.</p>
+      </div>
+    </div>
+
+    <div id="menuContent" class="tv-content hidden" data-storm-selectable="true" data-storm-selectable-label="Menu Content Grid" data-storm-selectable-category="section">
+      <!-- Menu items will be dynamically inserted here -->
+    </div>
+  </div>
+
+  <script type="module">
+    import ClientAPI from '/client.js';
+
+    const client = new ClientAPI();
+    const mealCourses = [
+      "Breakfast",
+      "Regular Lunch",
+      "Diet Lunch",
+      "Mini Meals",
+      "Regular Dinner",
+      "Diet Dinner",
+      "Supper",
+      "Special Item"
+    ];
+
+    $(document).ready(async function() {
+      // Display current date
+      const today = moment().format('MMMM D, YYYY');
+      $('#currentDate').text(today);
+
+      // Fetch and display menu
+      await loadDailyMenu();
+
+      // Refresh menu every 5 minutes
+      setInterval(loadDailyMenu, 5 * 60 * 1000);
+    });
+
+    async function loadDailyMenu() {
+      try {
+        const todayDate = moment().format('YYYY-MM-DD');
+        const menuData = await client.getDailyMenuDisplay(todayDate);
+
+        displayMenu(menuData);
+        
+        $('#loadingState').addClass('hidden');
+        $('#errorState').addClass('hidden');
+        $('#menuContent').removeClass('hidden');
+      } catch (error) {
+        console.error('Error loading daily menu:', error);
+        showError();
+      }
+    }
+
+    function displayMenu(menuData) {
+      const $menuContent = $('#menuContent');
+      $menuContent.empty();
+
+      mealCourses.forEach(course => {
+        const menuItem = menuData.menu_items_by_course && menuData.menu_items_by_course[course];
+        
+        const $card = $('<div>')
+          .addClass('meal-course-card')
+          .attr('data-storm-selectable', 'true')
+          .attr('data-storm-selectable-label', `${course} Card`)
+          .attr('data-storm-selectable-category', 'section');
+
+        const $courseTitle = $('<div>')
+          .addClass('course-title')
+          .text(course)
+          .attr('data-storm-selectable', 'true')
+          .attr('data-storm-selectable-label', `${course} Title`)
+          .attr('data-storm-selectable-category', 'text');
+
+        $card.append($courseTitle);
+
+        if (menuItem && menuItem.name) {
+          const $menuItemName = $('<div>')
+            .addClass('menu-item-name')
+            .text(menuItem.name)
+            .attr('data-storm-selectable', 'true')
+            .attr('data-storm-selectable-label', `${course} Menu Item`)
+            .attr('data-storm-selectable-category', 'text');
+          
+          $card.append($menuItemName);
+        } else {
+          const $noSelection = $('<div>')
+            .addClass('no-selection')
+            .text('No selection')
+            .attr('data-storm-selectable', 'true')
+            .attr('data-storm-selectable-label', `${course} No Selection Message`)
+            .attr('data-storm-selectable-category', 'text');
+          
+          $card.append($noSelection);
+        }
+
+        $menuContent.append($card);
+      });
+    }
+
+    function showError() {
+      $('#loadingState').addClass('hidden');
+      $('#menuContent').addClass('hidden');
+      $('#errorState').removeClass('hidden');
+    }
+  </script>
+
+
+</body></html>
