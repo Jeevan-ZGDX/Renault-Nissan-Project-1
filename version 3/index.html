@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Today's Menu - Daily Menu</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- GOOGLE FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* === COLOR PALETTE === */
+    :root {
+      --primary: #2C3E50;
+      --secondary: #E67E22;
+      --secondary-dark: #D35400;
+      --accent: #27AE60;
+      --background: #FFFFFF;
+      --background-light: #ECF0F1;
+      --text-dark: #2C3E50;
+      --text-light: #7F8C8D;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-dark: linear-gradient(135deg, #2C3E50 0%, #1a252f 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: var(--text-dark);
+      padding-top: 90px;
+      overflow-y: auto;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--gradient-dark);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 12px 0;
+    }
+
+    header .navbar-brand {
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: white !important;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    header .navbar-brand:hover {
+      color: var(--secondary) !important;
+      transform: scale(1.05);
+    }
+
+    .nav-link {
+      color: white !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--secondary) !important;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--secondary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      border: none;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(230, 126, 34, 0.4);
+    }
+
+    /* MAIN CONTENT */
+    main {
+      min-height: calc(100vh - 200px);
+    }
+
+    main > .text-center h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    main > .text-center p {
+      font-size: 1rem;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--gradient-dark);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h5 {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      color: var(--secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .filter-option:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(5px);
+    }
+
+    .filter-option input {
+      accent-color: var(--secondary);
+      margin-right: 0.8rem;
+      transform: scale(1.3);
+      cursor: pointer;
+    }
+
+    .filter-option label {
+      cursor: pointer;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    /* MENU CARD STYLES */
+    .menu-card {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+      border-radius: 12px;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .menu-card:hover::before {
+      opacity: 0.05;
+    }
+
+    .menu-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .menu-card-body {
+      padding: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu-card-body h5 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .menu-card-body p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .menu-card-body small {
+      font-size: 0.75rem;
+      color: white;
+      background: var(--secondary);
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .menu-card.selected {
+      border: 2px solid var(--accent);
+      background: rgba(39,174,96,0.05);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--background-light);
+      border-top: 4px solid var(--secondary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    footer {
+      background: var(--gradient-dark);
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 60px;
+      font-weight: 500;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-dark);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark container">
+      <a class="navbar-brand" href="index.html">Daily Menu</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav align-items-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="admin_dashboard.html">Admin</a></li>
+          <li class="nav-item"><a class="nav-link" href="tv_display.html">TV Display</a></li>
+          <li class="nav-item ms-3">
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container py-4">
+    <div class="text-center mb-4">
+      <h1>Today's Menu</h1>
+      <p class="text-muted" id="currentDate">Loading date...</p>
+    </div>
+
+    <div class="row">
+      <!-- SIDEBAR -->
+      <aside class="col-lg-3 mb-4">
+        <div class="sidebar">
+          <h5>Filter by Category</h5>
+          <div class="filter-option"><input type="checkbox" value="Breakfast" class="filter-box"> Breakfast</div>
+          <div class="filter-option"><input type="checkbox" value="Regular Lunch" class="filter-box"> Regular Lunch</div>
+          <div class="filter-option"><input type="checkbox" value="Diet Lunch" class="filter-box"> Diet Lunch</div>
+          <div class="filter-option"><input type="checkbox" value="Mini Meals" class="filter-box"> Mini Meals</div>
+          <div class="filter-option"><input type="checkbox" value="Regular Dinner" class="filter-box"> Regular Dinner</div>
+          <div class="filter-option"><input type="checkbox" value="Diet Dinner" class="filter-box"> Diet Dinner</div>
+          <div class="filter-option"><input type="checkbox" value="Supper" class="filter-box"> Supper</div>
+          <div class="filter-option"><input type="checkbox" value="Special Item" class="filter-box"> Special Item</div>
+        </div>
+      </aside>
+
+      <!-- MENU SECTION -->
+      <section class="col-lg-9">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center my-5">
+          <div class="spinner"></div>
+          <p class="text-muted">Loading menu...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="text-center my-5 d-none">
+          <div class="alert alert-danger d-inline-block">
+            <strong>Couldn't Load Menu</strong><br>Please try again later.
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center my-5 d-none">
+          <div class="alert alert-secondary d-inline-block">
+            No menu items available yet.
+          </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div id="menuGrid" class="row g-3 d-none"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Daily Menu</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const loadingState = document.getElementById("loadingState");
+    const errorState = document.getElementById("errorState");
+    const emptyState = document.getElementById("emptyState");
+    const menuGrid = document.getElementById("menuGrid");
+
+    let allItems = [];
+
+    // Load items
+    function loadMenuItems() {
+      try {
+        allItems = JSON.parse(localStorage.getItem("menuItems") || "[]");
+        loadingState.classList.add("d-none");
+
+        if (allItems.length === 0) {
+          emptyState.classList.remove("d-none");
+          return;
+        }
+
+        renderMenu(allItems);
+      } catch (err) {
+        console.error(err);
+        loadingState.classList.add("d-none");
+        errorState.classList.remove("d-none");
+      }
+    }
+
+    function renderMenu(items) {
+      menuGrid.innerHTML = "";
+      if (items.length === 0) {
+        menuGrid.innerHTML = "<p class='text-muted text-center'>No items match your filters.</p>";
+      } else {
+        menuGrid.classList.remove("d-none");
+        items.forEach(item => {
+          const col = document.createElement("div");
+          col.className = "col-xl-3 col-lg-4 col-md-6";
+
+          const imageSrc = item.image || "https://via.placeholder.com/300x200?text=No+Image";
+
+          const card = document.createElement("div");
+          card.className = "menu-card";
+          card.innerHTML = `
+            <img src="${imageSrc}" alt="${item.name}">
+            <div class="menu-card-body">
+              <h5>${item.name}</h5>
+              <p>${item.desc || "No description provided."}</p>
+              <small>${item.categories.join(", ")}</small>
+            </div>
+          `;
+          col.appendChild(card);
+          menuGrid.appendChild(col);
+        });
+      }
+    }
+
+    // Filter functionality
+    document.querySelectorAll(".filter-box").forEach(cb => {
+      cb.addEventListener("change", () => {
+        const selected = Array.from(document.querySelectorAll(".filter-box:checked")).map(c => c.value);
+        if (selected.length === 0) renderMenu(allItems);
+        else {
+          const filtered = allItems.filter(item => item.categories.some(cat => selected.includes(cat)));
+          renderMenu(filtered);
+        }
+      });
+    });
+
+    // Current date
+    document.getElementById("currentDate").textContent = new Date().toLocaleDateString(undefined, {
+      weekday: "long", year: "numeric", month: "long", day: "numeric"
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      alert("Logged out!");
+      window.location.href = "login.html";
+    });
+
+    setTimeout(loadMenuItems, 800);
+  </script>
+</body>
+</html>
