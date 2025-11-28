@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Birthday Wishes Display - Dark Theme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fun bubble-like font for the heading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; overflow: hidden; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, Helvetica, sans-serif;
+      background: teal;
+      color: white;
+    }
+
+    .overlay {
+      width: 92vw;
+      max-width: 1400px;
+      height: 90vh;
+      border-radius: 24px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 60px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 🎉 Effects layer (balloons + confetti) */
+    .effects-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .top-bar,
+    .main-content,
+    .bottom-bar {
+      position: relative;
+      z-index: 1;  /* content above effects */
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .company-name {
+      font-size: 2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color:#FFD700;
+    }
+
+    .date-box {
+      font-size: 1.1rem;
+      padding: 10px 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .main-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex: 1;
+      gap: 30px;
+    }
+
+    .text-section {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* BIG, CLEAR BIRTHDAY HEADING */
+    .headline {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .headline-icon {
+      font-size: 3.5rem;
+      line-height: 1;
+    }
+
+    .headline-text {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 3.6rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 10px 28px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #FFD700;
+      border: 3px solid #FFD700;
+      box-shadow: 0 0 20px rgba(0,0,0,0.9);
+      text-align: center;
+      white-space: nowrap;
+      animation: headlinePulse 3.5s ease-in-out infinite;
+    }
+
+    @keyframes headlinePulse {
+      0%   { transform: scale(1);   box-shadow: 0 0 16px rgba(0,0,0,0.7); }
+      50%  { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,0,0,1); }
+      100% { transform: scale(1);   box-shadow: 0 0 16px rgba(0,0,0,0.7); }
+    }
+
+    /* 🔠 Main text block (updated sizes) */
+    .subline {
+      font-size: 1.8rem;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-top: 4px;
+    }
+
+    .divider-line {
+      width: 90%;
+      height: 3px;
+      background: rgba(255, 215, 0, 0.9);  /* Renault yellow */
+      margin: 8px 0 16px 0;
+      border-radius: 6px;
+    }
+
+    .name-highlight {
+      font-size: 3.6rem;
+      font-weight: 900;
+      color: rgba(235, 94, 118, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .role-text {
+      font-size: 2rem;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+
+    /* 📌 SQUARE STYLE PHOTO */
+    .photo-section {
+      flex: 1.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-card {
+      padding: 16px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      box-shadow: none;
+      text-align: center;
+    }
+
+    .photo {
+      width: 280px;
+      height: 280px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 4px solid #ffffff;
+      filter: brightness(1) contrast(1);
+    }
+
+    .photo-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .small-label {
+      font-size: 1.1rem;
+      opacity: 0.75;
+    }
+
+    /* 🔻 BOTTOM SECTION */
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-top: 10px;
+    }
+
+    .ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      flex: 1;
+      margin-right: 20px;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker-slide 22s linear infinite;
+    }
+
+    @keyframes ticker-slide {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* 🎈 BALLOONS */
+    .balloon {
+      position: absolute;
+      bottom: -120px;
+      width: 40px;
+      height: 60px;
+      border-radius: 50% 50% 45% 45%;
+      background: red;
+      opacity: 0.9;
+      animation: floatUp linear forwards;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 58px;
+      width: 2px;
+      height: 40px;
+      background: rgba(255,255,255,0.7);
+      transform: translateX(-50%);
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      10%  { opacity: 0.9; }
+      100% { transform: translateY(-110vh) translateX(-30px); opacity: 0; }
+    }
+
+    /* 🎊 CONFETTI / PARTY PAPER */
+    .confetti {
+      position: absolute;
+      top: -20px;
+      width: 8px;
+      height: 16px;
+      background: #FFD700;
+      opacity: 0.9;
+      transform-origin: center;
+      animation: fallDown linear forwards;
+    }
+
+    @keyframes fallDown {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    @media(max-width:900px) {
+      .main-content { flex-direction: column-reverse; }
+      .photo { width: 190px; height: 190px; }
+      .headline-text { font-size: 2.4rem; letter-spacing: 0.12em; }
+      .name-highlight { font-size: 2.6rem; }
+      .role-text { font-size: 1.4rem; }
+      .subline { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <!-- Effects layer -->
+    <div class="effects-layer" id="effectsLayer"></div>
+
+    <div class="top-bar">
+      <div class="company-name">Renault Groups</div>
+      <div class="date-box" id="todayDate"></div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <!-- LEFT SIDE -->
+      <div class="text-section">
+        <div class="headline">
+          <span class="headline-icon">🎂</span>
+          <span class="headline-text">HAPPY BIRTHDAY</span>
+        </div>
+
+        <div class="subline">Celebrating Our Amazing Team Member</div>
+        <div class="divider-line"></div>
+
+        <div class="name-highlight" id="empName">Employee Name</div>
+        <div class="role-text" id="empRole">Role / Department</div>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="photo-section">
+        <div class="photo-card">
+          <img id="empPhoto" class="photo" src="" alt="Employee Photo" />
+          <div class="photo-name" id="empShortName">Employee Name</div>
+          <div class="small-label" id="empLocation">Location / Team</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="bottom-bar">
+      <div class="ticker">
+        <span id="tickerText">
+          Happy Birthday to our shining stars! Wishing you joy, health, and success in every step you take. 🎂🎁🎉
+        </span>
+      </div>
+    </div>
+
+  <script>
+    const EMPLOYEES_TODAY = [
+      { name: "SEKAR Hemnath", role: "Software Developer", shortName: "Hemnath", location: "Chennai – IT Team", photo: "../Hemnath.jpg" },
+      { name: "Divya Sharma", role: "HR Manager", shortName: "Divya", location: "Pune – HR Dept", photo: "../dq.jpg" }
+    ];
+
+    const SLIDE_DURATION = 9000;
+
+    function formatToday() {
+      const now = new Date();
+      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+      return now.toLocaleDateString(undefined, options);
+    }
+
+    function showEmployee(emp) {
+      document.getElementById("empName").innerText = emp.name;
+      document.getElementById("empRole").innerText = emp.role;
+      document.getElementById("empShortName").innerText = emp.shortName;
+      document.getElementById("empLocation").innerText = emp.location;
+      document.getElementById("empPhoto").src = emp.photo;
+    }
+
+    function startSlideshow() {
+      if (!EMPLOYEES_TODAY.length) return;
+
+      let index = 0;
+      showEmployee(EMPLOYEES_TODAY[index]);
+
+      setInterval(() => {
+        index = (index + 1) % EMPLOYEES_TODAY.length;
+        showEmployee(EMPLOYEES_TODAY[index]);
+      }, SLIDE_DURATION);
+    }
+
+    /* 🎈 Create one balloon */
+    function createBalloon() {
+      const effectsLayer = document.getElementById("effectsLayer");
+      const balloon = document.createElement("div");
+      balloon.classList.add("balloon");
+
+      const left = Math.random() * 100;
+      balloon.style.left = left + "%";
+
+      const colors = ["#ff6b6b", "#ffd93d", "#6bcB77", "#4d96ff", "#ff9f1c", "#f06595"];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      balloon.style.background = color;
+
+      const duration = 10 + Math.random() * 8;
+      balloon.style.animationDuration = duration + "s";
+
+      effectsLayer.appendChild(balloon);
+
+      setTimeout(() => {
+        balloon.remove();
+      }, duration * 1000);
+    }
+
+    /* 🎊 Create one confetti piece */
+    function createConfetti() {
+      const effectsLayer = document.getElementById("effectsLayer");
+      const confetti = document.createElement("div");
+      confetti.classList.add("confetti");
+
+      const left = Math.random() * 100;
+      confetti.style.left = left + "%";
+
+      const colors = ["#FFD700", "#ff6b6b", "#4d96ff", "#6bcb77", "#f06595", "#ffffff"];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.background = color;
+
+      const duration = 6 + Math.random() * 5;
+      confetti.style.animationDuration = duration + "s";
+
+      effectsLayer.appendChild(confetti);
+
+      setTimeout(() => {
+        confetti.remove();
+      }, duration * 1000);
+    }
+
+    function startEffects() {
+      setInterval(createBalloon, 1200);
+
+      setInterval(() => {
+        for (let i = 0; i < 5; i++) {
+          createConfetti();
+        }
+      }, 700);
+    }
+
+    window.addEventListener("load", () => {
+      document.getElementById("todayDate").innerText = formatToday();
+      startSlideshow();
+      startEffects();
+    });
+  </script>
+</body>
+</html>
